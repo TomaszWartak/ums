@@ -3,6 +3,7 @@ package pl.dev4lazy.ums.domain.service;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import pl.dev4lazy.ums.application.UserCreationService;
 import pl.dev4lazy.ums.domain.model.user.Email;
 import pl.dev4lazy.ums.domain.model.user.PersonalName;
 import pl.dev4lazy.ums.domain.model.user.User;

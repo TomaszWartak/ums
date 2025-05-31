@@ -1,4 +1,4 @@
-package pl.dev4lazy.ums.domain.service;
+package pl.dev4lazy.ums.application;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
