@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: ums
+  profiles:
+    active: dev  # domy?lny profil
