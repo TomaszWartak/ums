@@ -7,7 +7,7 @@ import pl.dev4lazy.ums.domain.model.user.Email;
 import pl.dev4lazy.ums.domain.model.user.PersonalName;
 import pl.dev4lazy.ums.domain.model.user.User;
 import pl.dev4lazy.ums.domain.repository.UserRepository;
-import pl.dev4lazy.ums.mock.UserRepositoryMock;
+import pl.dev4lazy.ums.mock.UserRepositoryMockAdapter;
 
 import static org.testng.Assert.*;
 import static pl.dev4lazy.ums.domain.model.user.UserStatus.INACTIVE;
@@ -19,7 +19,7 @@ public class UserCreationServiceTest {
 
     @BeforeMethod
     public void setUp() {
-        userRepository = new UserRepositoryMock();
+        userRepository = new UserRepositoryMockAdapter();
         userRepository.deleteAll();
         userCreationService = new UserCreationService( userRepository );
     }

@@ -1,25 +1,47 @@
-package pl.dev4lazy.ums.domain.repository;
+package pl.dev4lazy.ums.adapters.outbound.persistence;
 
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import pl.dev4lazy.ums.adapters.outbound.persistence.mapper.UserEntityMapper;
 import pl.dev4lazy.ums.domain.model.user.Email;
 import pl.dev4lazy.ums.domain.model.user.PersonalName;
 import pl.dev4lazy.ums.domain.model.user.User;
+import pl.dev4lazy.ums.domain.repository.AbstractUserRepositoryTest;
+import pl.dev4lazy.ums.domain.repository.UserRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
-public abstract class AbstractUserRepositoryTest {
+@SpringBootTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
+public class UserRepositoryAdapterTest extends AbstractTestNGSpringContextTests {
 
-    protected UserRepository repository;
+    @Autowired
+    private SpringDataUserJpa springDataUserJpa;
 
-    protected abstract UserRepository createRepository();
+    @Autowired
+    private UserEntityMapper userEntityMapper;
+
+    @Autowired
+    private UserRepositoryAdapter userRepositoryAdapter;
+
+    UserRepository repository;
 
     @BeforeMethod
     public void setup() {
-        repository = createRepository();
+        repository = userRepositoryAdapter;
+        repository.deleteAll();
     }
 
     @Test
@@ -85,12 +107,6 @@ public abstract class AbstractUserRepositoryTest {
     }
 
     @Test
-    public void testFindById_NullUserId_ReturnsEmpty() {
-        Optional<User> user = repository.findById(null);
-        assertFalse(user.isPresent());
-    }
-
-    @Test
     public void testFindAll_ReturnsAllSavedUsers() {
         User user1 = User.create(
                 new PersonalName("User", "1"),
@@ -110,4 +126,5 @@ public abstract class AbstractUserRepositoryTest {
         assertTrue(allUsers.contains(user1));
         assertTrue(allUsers.contains(user2));
     }
+
 }

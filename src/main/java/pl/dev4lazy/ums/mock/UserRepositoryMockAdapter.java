@@ -6,7 +6,7 @@ import pl.dev4lazy.ums.domain.repository.UserRepository;
 
 import java.util.*;
 
-public class UserRepositoryMock implements UserRepository {
+public class UserRepositoryMockAdapter implements UserRepository {
 
     private final Map<Long, User> storage = new HashMap<>();
 
