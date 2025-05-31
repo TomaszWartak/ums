@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import pl.dev4lazy.ums.adapters.outbound.persistence.entity.UserEntity;
 
 @Repository
-public interface SpringDataUserJPA extends JpaRepository<UserEntity, Long> {
+public interface SpringDataUserJpa extends JpaRepository<UserEntity, Long> {
     // todo tutaj możesz dodać metody typu: boolean existsByEmail(String email);
 }

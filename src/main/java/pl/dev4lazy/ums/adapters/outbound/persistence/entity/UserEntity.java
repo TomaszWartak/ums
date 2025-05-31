@@ -1,10 +1,16 @@
 package pl.dev4lazy.ums.adapters.outbound.persistence.entity;
 
 import jakarta.persistence.*;  // (albo javax.persistence w starszych wersjach)
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import pl.dev4lazy.ums.domain.model.user.UserStatus;
-import lombok.Data;
 
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // Hibernate wymaga co najmniej protected
+@AllArgsConstructor
+@Builder
 @Table(name = "users")
 public class UserEntity {
     @Id
