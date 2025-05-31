@@ -1,7 +1,5 @@
 package pl.dev4lazy.ums.domain.model.user;
 
-import java.util.Objects;
-
 public class User {
     private UserId id;                     // VO
     private PersonalName name;             // VO: first + last
