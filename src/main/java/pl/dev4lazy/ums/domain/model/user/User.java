@@ -1,16 +1,22 @@
 package pl.dev4lazy.ums.domain.model.user;
 
+import java.util.Objects;
+
 public class User {
     private UserId id;                     // VO
     private PersonalName name;             // VO: first + last
     private Email email;                   // VO: walidacja formatu
     private UserStatus status;             // ENUM (ACTIVE, INACTIVE)
 
-    public User(UserId id, PersonalName name, Email email, UserStatus status) {
+    public User( UserId id, PersonalName name, Email email, UserStatus status ) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.status = status;
+    }
+
+    public User( PersonalName name, Email email ) {
+        this(null, name, email, UserStatus.INACTIVE);
     }
 
     public UserId getId() {
@@ -46,9 +52,12 @@ public class User {
     }
 
     // todo fabryka statyczna dla nowych użytkowników
-    public static User register(PersonalName name, Email email) {
-        return null;
+    public static User create( PersonalName name, Email email ) {
+        Objects.requireNonNull(name, "PersonalName nie może być null");
+        Objects.requireNonNull(email, "Email nie może być null");
+        return new User(name, email);
     }
+
 
     public void activate() {
         if (status == UserStatus.ACTIVE) {
@@ -64,7 +73,6 @@ public class User {
         this.status = UserStatus.INACTIVE;
     }
 
-    // todo  hashCode, etc.
     @Override
     public boolean equals(Object o) {
         if (this == o) {
