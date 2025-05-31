@@ -9,7 +9,7 @@ public class UserIdTest {
     @Test
     public void whenCreatingUserIdWithValidValue_thenSuccess() {
         UserId id = new UserId(5L);
-        assertEquals(id.value().longValue(), 5L);
+        assertEquals(id.getValue().longValue(), 5L);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,

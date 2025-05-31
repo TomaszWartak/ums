@@ -8,14 +8,14 @@ public class User {
     private Email email;                   // VO: walidacja formatu
     private UserStatus status;             // ENUM (ACTIVE, INACTIVE)
 
-    public User( UserId id, PersonalName name, Email email, UserStatus status ) {
+    private User( UserId id, PersonalName name, Email email, UserStatus status ) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.status = status;
     }
 
-    public User( PersonalName name, Email email ) {
+    private User( PersonalName name, Email email ) {
         this(null, name, email, UserStatus.INACTIVE);
     }
 

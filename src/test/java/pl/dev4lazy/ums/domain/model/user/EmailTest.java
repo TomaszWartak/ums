@@ -16,6 +16,12 @@ public class EmailTest {
         };
     }
 
+    @Test(dataProvider = "validEmails")
+    public void testValidEmails(String emailStr) {
+        Email email = new Email(emailStr);
+        assertEquals(email.getValue(), emailStr);
+    }
+
     @DataProvider(name = "invalidEmails")
     public Object[][] invalidEmails() {
         return new Object[][] {
@@ -28,12 +34,6 @@ public class EmailTest {
                 {"missingdot@domaincom"},
                 {"missing@dotcom."}
         };
-    }
-
-    @Test(dataProvider = "validEmails")
-    public void testValidEmails(String emailStr) {
-        Email email = new Email(emailStr);
-        assertEquals(email.value(), emailStr);
     }
 
     @Test(dataProvider = "invalidEmails", expectedExceptions = IllegalArgumentException.class)
