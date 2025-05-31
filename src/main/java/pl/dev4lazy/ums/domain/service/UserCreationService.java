@@ -1,10 +1,13 @@
 package pl.dev4lazy.ums.domain.service;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.dev4lazy.ums.domain.model.user.Email;
 import pl.dev4lazy.ums.domain.model.user.PersonalName;
 import pl.dev4lazy.ums.domain.model.user.User;
 import pl.dev4lazy.ums.domain.repository.UserRepository;
 
+@Service
 public class UserCreationService {
     private final UserRepository userRepository;
 
@@ -12,6 +15,7 @@ public class UserCreationService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public Long create(String firstName, String lastName, String emailStr) {
         PersonalName name = new PersonalName(firstName, lastName);
         Email email = new Email(emailStr);
