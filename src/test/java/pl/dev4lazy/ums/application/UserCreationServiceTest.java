@@ -8,7 +8,9 @@ import pl.dev4lazy.ums.domain.model.user.PersonalName;
 import pl.dev4lazy.ums.domain.model.user.User;
 import pl.dev4lazy.ums.domain.repository.UserRepository;
 import pl.dev4lazy.ums.domain.service.EmailAlreadyExistsException;
+import pl.dev4lazy.ums.domain.service.UserNotFoundException;
 import pl.dev4lazy.ums.mock.UserRepositoryMockAdapter;
+import pl.dev4lazy.ums.utils.Messages;
 
 import static org.testng.Assert.*;
 import static pl.dev4lazy.ums.domain.model.user.UserStatus.INACTIVE;
@@ -42,14 +44,14 @@ public class UserCreationServiceTest {
         Long returnedId = userCreationService.create( firstName, lastName, emailStr );
 
         // --- Weryfikacje zwróconego ID ---
-        assertNotNull( returnedId, "Zwrócone ID nie może być null");
+        assertNotNull( returnedId, Messages.USER_ID_NULL);
         assertEquals( returnedId.longValue(), 1L);
 
         // --- Pobranie zapisanego obiektu User
         User savedUser = userRepository
                 .findById( 1L )
                 .orElseThrow(
-                        () -> new RuntimeException("User not found")
+                        () -> new UserNotFoundException( Messages.USER_NOT_FOUND )
                 );
 
         assertEquals( savedUser.getName(), new PersonalName(firstName, lastName) );

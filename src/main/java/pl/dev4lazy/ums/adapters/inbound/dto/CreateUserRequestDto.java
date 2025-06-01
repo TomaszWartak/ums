@@ -3,9 +3,11 @@ package pl.dev4lazy.ums.adapters.inbound.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+import pl.dev4lazy.ums.utils.Messages;
+
 public record CreateUserRequestDto(
-        @NotBlank(message = "firstName nie może być puste") String firstName,
-        @NotBlank(message = "lastName nie może być puste") String lastName,
-        @NotBlank(message = "email nie może być pusty")
-        @Email(message = "Nieprawidłowy format e-maila") String email
+        @NotBlank( message = Messages.FIRST_NAME_EMPTY ) String firstName,
+        @NotBlank( message = Messages.LAST_NAME_EMPTY ) String lastName,
+        @NotBlank( message = Messages.EMAIL_EMPTY )
+        @Email( message = Messages.INCORRECT_EMAIL_FORMAT ) String email
 ) { }

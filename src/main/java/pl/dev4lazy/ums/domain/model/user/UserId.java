@@ -1,15 +1,17 @@
 package pl.dev4lazy.ums.domain.model.user;
 
+import pl.dev4lazy.ums.utils.Messages;
+
 import java.util.Objects;
 
 public record UserId( Long userIdValue) {
 
     public UserId {
         if (userIdValue == null) {
-            throw new IllegalArgumentException("UserId nie może być null");
+            throw new IllegalArgumentException( Messages.USER_ID_NULL );
         }
         if (userIdValue <= 0) {
-            throw new IllegalArgumentException("UserId musi być dodatnie: " + userIdValue);
+            throw new IllegalArgumentException( String.format( Messages.USER_ID_NEGATIVE, userIdValue) );
         }
     }
 

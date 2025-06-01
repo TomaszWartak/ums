@@ -54,6 +54,16 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
+    public Long findMaxId() {
+        Optional<UserEntity> userWithMaxId = springDataUserJpa.findTopByOrderByIdDesc();
+        Long maxIdWrapped = 0L;
+        if (userWithMaxId.isPresent()) {
+            maxIdWrapped = userWithMaxId.get().getId();
+        }
+        return maxIdWrapped;
+    }
+
+    @Override
     public boolean existsByEmail(String email) {
         return springDataUserJpa.findByEmail( email ).isPresent();
     }

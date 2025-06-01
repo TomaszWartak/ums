@@ -2,6 +2,7 @@ package pl.dev4lazy.ums.domain.model.user;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import pl.dev4lazy.ums.utils.Messages;
 
 import static org.testng.Assert.*;
 
@@ -27,7 +28,7 @@ public class UserStatusTransitionTest {
     }
 
     @Test(expectedExceptions = IllegalStateException.class,
-            expectedExceptionsMessageRegExp = "Użytkownik już jest aktywny")
+            expectedExceptionsMessageRegExp = Messages.USER_IS_ACTIVE_ALREADY )
     public void whenActivatingAlreadyActiveUser_thenThrowsException() {
         // najpierw aktywujemy
         user.activate();
@@ -49,7 +50,7 @@ public class UserStatusTransitionTest {
     }
 
     @Test(expectedExceptions = IllegalStateException.class,
-            expectedExceptionsMessageRegExp = "Użytkownik już jest nieaktywny")
+            expectedExceptionsMessageRegExp = Messages.USER_IS_INACTIVE_ALREADY)
     public void whenDeactivatingAlreadyInactiveUser_thenThrowsException() {
         // początkowo user jest INACTIVE
         assertEquals(user.getStatus(), UserStatus.INACTIVE);

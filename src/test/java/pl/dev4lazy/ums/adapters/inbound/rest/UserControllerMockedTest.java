@@ -14,6 +14,7 @@ import pl.dev4lazy.ums.adapters.inbound.dto.CreateUserRequestDto;
 //import pl.dev4lazy.ums.application.ActivateUserService;
 import pl.dev4lazy.ums.application.UserCreationService;
 import pl.dev4lazy.ums.domain.service.EmailAlreadyExistsException;
+import pl.dev4lazy.ums.utils.Messages;
 //import pl.dev4lazy.ums.application.DeactivateUserService;
 //import pl.dev4lazy.ums.application.ListUsersService;
 
@@ -201,7 +202,7 @@ public class UserControllerMockedTest /* todo extends AbstractTestNGSpringContex
                 "duplicate@example.com"
         );
 
-        doThrow( new EmailAlreadyExistsException("E-mail już istnieje") )
+        doThrow( new EmailAlreadyExistsException( String.format( Messages.USER_EMAIL_DUPLICATED, requestDto.email() ) ) )
                 .when(userCreationService)
                 .create(
                         anyString(),
@@ -218,7 +219,7 @@ public class UserControllerMockedTest /* todo extends AbstractTestNGSpringContex
                  // Weryfikacja odpowiedzi: 409 Conflict i JSON z polem "error"
                 .andExpect( status().isConflict() )
                 .andExpect( content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON) )
-                .andExpect( jsonPath("$.error").value("E-mail już istnieje") );
+                .andExpect( jsonPath("$.error").value(Messages.USER_EMAIL_DUPLICATED ) );
     }
 
     @Test

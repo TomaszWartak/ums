@@ -1,11 +1,13 @@
 package pl.dev4lazy.ums.domain.model.user;
 
+import pl.dev4lazy.ums.utils.Messages;
+
 import java.util.Objects;
 
 public record Email( String emailValue) {
     public Email {
         if (emailValue == null || !emailValue.matches("^.+@.+\\..+$")) {
-            throw new IllegalArgumentException("Nieprawidłowy format e-maila");
+            throw new IllegalArgumentException( Messages.INCORRECT_EMAIL_FORMAT );
         }
     }
     public String getValue() {

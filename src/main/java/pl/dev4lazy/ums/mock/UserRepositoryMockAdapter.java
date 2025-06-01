@@ -55,6 +55,19 @@ public class UserRepositoryMockAdapter implements UserRepository {
     }
 
     @Override
+    public Long findMaxId() {
+        Optional<Long> maxKey =
+                storage
+                        .keySet()
+                        .stream()
+                        .max(Long::compareTo);
+        if (maxKey.isEmpty()) {
+            return 0L;
+        }
+        return maxKey.get();
+    }
+
+    @Override
     public boolean existsByEmail(String email) {
         if (email == null) {
             return false;

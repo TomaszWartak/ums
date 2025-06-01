@@ -1,12 +1,14 @@
 package pl.dev4lazy.ums.domain.model.user;
 
+import pl.dev4lazy.ums.utils.Messages;
+
 import java.util.Objects;
 
 public class User {
-    private UserId id;                     // VO
-    private PersonalName name;             // VO: first + last
-    private Email email;                   // VO: walidacja formatu
-    private UserStatus status;             // ENUM (ACTIVE, INACTIVE)
+    private UserId id;
+    private PersonalName name;
+    private Email email;
+    private UserStatus status;
 
     private User( UserId id, PersonalName name, Email email, UserStatus status ) {
         this.id = id;
@@ -51,24 +53,23 @@ public class User {
         this.status = status;
     }
 
-    // todo fabryka statyczna dla nowych użytkowników
     public static User create( PersonalName name, Email email ) {
-        Objects.requireNonNull(name, "PersonalName nie może być null");
-        Objects.requireNonNull(email, "Email nie może być null");
+        Objects.requireNonNull(name, Messages.NAME_NULL );
+        Objects.requireNonNull(email, Messages.EMAIL_NULL );
         return new User(name, email);
     }
 
 
     public void activate() {
         if (status == UserStatus.ACTIVE) {
-            throw new IllegalStateException("Użytkownik już jest aktywny");
+            throw new IllegalStateException( Messages.USER_IS_ACTIVE_ALREADY);
         }
         this.status = UserStatus.ACTIVE;
     }
 
     public void deactivate() {
         if (status == UserStatus.INACTIVE) {
-            throw new IllegalStateException("Użytkownik już jest nieaktywny");
+            throw new IllegalStateException( Messages.USER_IS_INACTIVE_ALREADY );
         }
         this.status = UserStatus.INACTIVE;
     }

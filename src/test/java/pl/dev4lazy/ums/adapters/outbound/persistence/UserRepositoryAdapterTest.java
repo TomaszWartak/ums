@@ -2,18 +2,16 @@ package pl.dev4lazy.ums.adapters.outbound.persistence;
 
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-import pl.dev4lazy.ums.adapters.outbound.persistence.mapper.UserEntityMapper;
 import pl.dev4lazy.ums.domain.model.user.Email;
 import pl.dev4lazy.ums.domain.model.user.PersonalName;
 import pl.dev4lazy.ums.domain.model.user.User;
-import pl.dev4lazy.ums.domain.repository.AbstractUserRepositoryTest;
 import pl.dev4lazy.ums.domain.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import pl.dev4lazy.ums.utils.Messages;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,20 +26,12 @@ import static org.testng.Assert.assertTrue;
 public class UserRepositoryAdapterTest extends AbstractTestNGSpringContextTests {
 
     @Autowired
-    private SpringDataUserJpa springDataUserJpa;
-
-    @Autowired
-    private UserEntityMapper userEntityMapper;
-
-    @Autowired
     private UserRepositoryAdapter userRepositoryAdapter;
 
-    UserRepository repository;
 
     @BeforeMethod
     public void setup() {
-        repository = userRepositoryAdapter;
-        repository.deleteAll();
+        userRepositoryAdapter.deleteAll();
     }
 
     @Test
@@ -53,13 +43,13 @@ public class UserRepositoryAdapterTest extends AbstractTestNGSpringContextTests 
         // Zakładamy, że user ma metodę getId() która zwraca null przed ustawieniem
         assertNull(user.getId());
 
-        User savedUser = repository.save(user);
+        User savedUser = userRepositoryAdapter.save(user);
 
-        assertNotNull(savedUser.getId(), "ID powinno być ustawione");
-        assertEquals(savedUser.getName().getValue(), "Jan Kowalski");
-        assertEquals(savedUser.getEmail().getValue(), "jan.kowalski@example.com");
+        assertNotNull( savedUser.getId(), Messages.USER_ID_NULL );
+        assertEquals( savedUser.getName().getValue(), "Jan Kowalski");
+        assertEquals( savedUser.getEmail().getValue(), "jan.kowalski@example.com");
 
-        Optional<User> found = repository.findByUserId(savedUser.getId());
+        Optional<User> found = userRepositoryAdapter.findByUserId(savedUser.getId());
         assertTrue(found.isPresent());
         assertEquals(found.get(), savedUser);
     }
@@ -71,17 +61,17 @@ public class UserRepositoryAdapterTest extends AbstractTestNGSpringContextTests 
                 new Email("anna.nowak@example.com")
         );
 
-        User savedUser = repository.save(user);
+        User savedUser = userRepositoryAdapter.save(user);
 
         // Zmiana danych użytkownika
         savedUser.setName( new PersonalName("Anna", "K.") );
         savedUser.setEmail( new Email("anna.k@example.com") );
 
-        User updatedUser = repository.save(savedUser);
+        User updatedUser = userRepositoryAdapter.save(savedUser);
         assertEquals( updatedUser.getName().getValue(), "Anna K.");
         assertEquals( updatedUser.getEmail().getValue(), "anna.k@example.com" );
 
-        Optional<User> found = repository.findByUserId( updatedUser.getId() );
+        Optional<User> found = userRepositoryAdapter.findByUserId( updatedUser.getId() );
         assertTrue( found.isPresent() );
         assertEquals( found.get().getName().getValue(), "Anna K." );
     }
@@ -94,15 +84,15 @@ public class UserRepositoryAdapterTest extends AbstractTestNGSpringContextTests 
                 new Email("anna.nowak@example.com")
         );
 
-        User savedUser = repository.save( newUser );
+        User savedUser = userRepositoryAdapter.save( newUser );
 
-        Optional<User> user = repository.findByUserId( savedUser.getId() );
+        Optional<User> user = userRepositoryAdapter.findByUserId( savedUser.getId() );
         assertTrue(user.isPresent());
     }
 
     @Test
     public void testFindById_NonExistingUserId_ReturnsEmpty() {
-        Optional<User> user = repository.findById( 999L );
+        Optional<User> user = userRepositoryAdapter.findById( 999L );
         assertFalse(user.isPresent());
     }
 
@@ -118,13 +108,48 @@ public class UserRepositoryAdapterTest extends AbstractTestNGSpringContextTests 
                 new Email("user2@example.com")
         );
 
-        user1 = repository.save(user1);
-        user2 = repository.save(user2);
+        user1 = userRepositoryAdapter.save(user1);
+        user2 = userRepositoryAdapter.save(user2);
 
-        List<User> allUsers = repository.findAll();
+        List<User> allUsers = userRepositoryAdapter.findAll();
         assertEquals(allUsers.size(), 2);
         assertTrue(allUsers.contains(user1));
         assertTrue(allUsers.contains(user2));
+    }
+
+    @Test
+    public void testFindMaxId_Returns0WhenNoSavedUsers() {
+        Long maxId = userRepositoryAdapter.findMaxId();
+        assertEquals( maxId, 0);
+    }
+
+    @Test
+    public void testFindMaxId_ReturnsMoreAbout2After2SavedUsers() {
+        User user1 = User.create(
+                new PersonalName("User", "1"),
+                new Email("user1@example.com")
+        );
+
+        User user2 = User.create(
+                new PersonalName("User", "2"),
+                new Email("user2@example.com")
+        );
+
+
+        User user3 = User.create(
+                new PersonalName("User", "3"),
+                new Email("user3@example.com")
+        );
+
+        userRepositoryAdapter.save(user1);
+
+        Long maxIdBeforeSaving = userRepositoryAdapter.findMaxId();
+
+        userRepositoryAdapter.save(user2);
+        userRepositoryAdapter.save(user3);
+
+        Long maxIdAfterSaving = userRepositoryAdapter.findMaxId();
+        assertEquals( maxIdAfterSaving, maxIdBeforeSaving+2);
     }
 
 }

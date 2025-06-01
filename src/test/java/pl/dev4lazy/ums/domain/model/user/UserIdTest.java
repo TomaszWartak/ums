@@ -1,6 +1,7 @@
 package pl.dev4lazy.ums.domain.model.user;
 
 import org.testng.annotations.Test;
+import pl.dev4lazy.ums.utils.Messages;
 
 import static org.testng.Assert.*;
 
@@ -13,13 +14,13 @@ public class UserIdTest {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,
-            expectedExceptionsMessageRegExp = "UserId nie może być null")
+            expectedExceptionsMessageRegExp = Messages.USER_ID_NULL )
     public void whenCreatingUserIdWithNull_thenThrowsException() {
         new UserId(null);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,
-            expectedExceptionsMessageRegExp = "UserId musi być dodatnie: -1")
+            expectedExceptionsMessageRegExp = Messages.USER_ID_NEGATIVE )
     public void whenCreatingUserIdWithNegativeValue_thenThrowsException() {
         new UserId(-1L);
     }

@@ -16,6 +16,13 @@ public class PersonalNameTest {
         };
     }
 
+    @Test(dataProvider = "validNames")
+    public void testValidPersonalNames(String firstName, String lastName) {
+        PersonalName name = new PersonalName(firstName, lastName);
+        assertEquals(name.firstName(), firstName);
+        assertEquals(name.lastName(), lastName);
+    }
+
     @DataProvider(name = "invalidNames")
     public Object[][] invalidNames() {
         return new Object[][] {
@@ -29,13 +36,6 @@ public class PersonalNameTest {
                 {"", ""},
                 {"   ", "   "}
         };
-    }
-
-    @Test(dataProvider = "validNames")
-    public void testValidPersonalNames(String firstName, String lastName) {
-        PersonalName name = new PersonalName(firstName, lastName);
-        assertEquals(name.firstName(), firstName);
-        assertEquals(name.lastName(), lastName);
     }
 
     @Test(dataProvider = "invalidNames", expectedExceptions = IllegalArgumentException.class)

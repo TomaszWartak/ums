@@ -1,9 +1,6 @@
 package pl.dev4lazy.ums.adapters.inbound.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,18 +8,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pl.dev4lazy.ums.adapters.inbound.dto.CreateUserRequestDto;
 import pl.dev4lazy.ums.adapters.outbound.persistence.UserRepositoryAdapter;
 import pl.dev4lazy.ums.application.UserCreationService;
-import pl.dev4lazy.ums.domain.service.EmailAlreadyExistsException;
+import pl.dev4lazy.ums.utils.Messages;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -44,7 +36,7 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
     @Autowired
     private ObjectMapper objectMapper;
 
-    @BeforeMethod
+        @BeforeMethod
     public void cleanDatabase() {
         // Przed każdym testem czyścimy tabelę users w H2
         userRepositoryAdapter.deleteAll();
@@ -66,13 +58,15 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
                 "jan.kowalski@example.com"
         );
 
+        Long maxId = userRepositoryAdapter.findMaxId();
+        maxId++;
         mockMvc.perform( post("/api/users")
                         .contentType( MediaType.APPLICATION_JSON )
                         .content( objectMapper.writeValueAsString(validRequest) )
                         .accept( MediaType.APPLICATION_JSON) )
                 .andExpect( status().isCreated() )
                 .andExpect( content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON) )
-                .andExpect( jsonPath("$.id").value(1) );
+                .andExpect( jsonPath("$.id").value( maxId ) );
     }
 
     @Test
@@ -187,10 +181,11 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
 
     @Test
     public void testCreateUser_WithDuplicateEmail_ReturnsConflict() throws Exception {
+        String emailDuplicated = "duplicate@example.com";
         CreateUserRequestDto requestDto = new CreateUserRequestDto(
                 "Jan",
                 "Kowalski",
-                "duplicate@example.com"
+                emailDuplicated
         );
 
         mockMvc.perform( post("/api/users")
@@ -198,8 +193,7 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
                         .content( objectMapper.writeValueAsString( requestDto ) )
                         .accept( MediaType.APPLICATION_JSON) )
                 .andExpect( status().isCreated() )
-                .andExpect( content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON) )
-                .andExpect( jsonPath("$.id").value(1) );
+                .andExpect( content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON) );
 
         mockMvc.perform(post("/api/users")
                         .contentType( MediaType.APPLICATION_JSON )
@@ -207,8 +201,8 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
                         .accept( MediaType.APPLICATION_JSON) )
                  // Weryfikacja odpowiedzi: 409 Conflict i JSON z polem "error"
                 .andExpect( status().isConflict() )
-                .andExpect( content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON) )
-                .andExpect( jsonPath("$.error").value("E-mail już istnieje") );
+                .andExpect( content().contentTypeCompatibleWith( MediaType.APPLICATION_JSON ) )
+                .andExpect( jsonPath("$.error").value( String.format( Messages.USER_EMAIL_DUPLICATED, emailDuplicated ) ) );
     }
 
     @Test

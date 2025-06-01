@@ -11,4 +11,6 @@ public interface SpringDataUserJpa extends JpaRepository<UserEntity, Long> {
 
     Optional<UserEntity> findByEmail(String email);
 
+    Optional<UserEntity> findTopByOrderByIdDesc();
+
 }

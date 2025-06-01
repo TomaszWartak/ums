@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import pl.dev4lazy.ums.adapters.inbound.dto.CreateUserRequestDto;
 import pl.dev4lazy.ums.application.UserCreationService;
+import pl.dev4lazy.ums.utils.Messages;
 
 import java.util.Map;
 
@@ -23,7 +24,7 @@ public class UserController {
 
     @GetMapping("/")
     public Map<String,String> home() {
-        return Map.of("status", "OK");
+        return Map.of( Messages.STATUS, Messages.OK );
     }
 
     @PostMapping("/api/users")

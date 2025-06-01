@@ -1,5 +1,7 @@
 package pl.dev4lazy.ums.domain.model.user;
 
+import pl.dev4lazy.ums.utils.Messages;
+
 import java.util.Objects;
 
 public record PersonalName(String firstName, String lastName) {
@@ -7,7 +9,7 @@ public record PersonalName(String firstName, String lastName) {
     public PersonalName {
         if (firstName == null || firstName.isBlank() ||
                 lastName  == null || lastName.isBlank()) {
-            throw new IllegalArgumentException("Imię i nazwisko nie mogą być puste");
+            throw new IllegalArgumentException( Messages.NAME_EMPTY );
         }
     }
 
