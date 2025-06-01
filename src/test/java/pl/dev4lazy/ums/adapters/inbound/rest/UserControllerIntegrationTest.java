@@ -57,14 +57,27 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
 
     @Test
     public void testCreateUser_ValidInput_ReturnsCreatedWithId() throws Exception {
+        CreateUserRequestDto dummyRequest = new CreateUserRequestDto(
+                "Dummy",
+                "Dummy",
+                "dummy@example.com"
+        );
+
+        mockMvc.perform( post("/api/users")
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( objectMapper.writeValueAsString( dummyRequest ) )
+                        .accept( MediaType.APPLICATION_JSON) )
+                .andExpect( status().isCreated() );
+
+        Long maxId = userRepositoryAdapter.findMaxId();
+        maxId++;
+
         CreateUserRequestDto validRequest = new CreateUserRequestDto(
                 "Jan",
                 "Kowalski",
                 "jan.kowalski@example.com"
         );
 
-        Long maxId = userRepositoryAdapter.findMaxId();
-        maxId++;
         mockMvc.perform( post("/api/users")
                         .contentType( MediaType.APPLICATION_JSON )
                         .content( objectMapper.writeValueAsString(validRequest) )
@@ -334,5 +347,97 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error")
                         .value( equalTo(String.format(Messages.USER_NOT_FOUND, nonExistingId))));
+    }
+
+    @Test
+    public void testDeactivate_ExistingActiveUser_SetsStatusToInactive() throws Exception {
+        // 1. Utwórz użytkownika (domyślnie status INACTIVE)
+        CreateUserRequestDto createDto = new CreateUserRequestDto(
+                "Marek", "Nowak", "marek.nowak@example.com"
+        );
+        String createJson = mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createDto))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        JsonNode created = objectMapper.readTree(createJson);
+        Long userId = created.get("id").asLong();
+
+        // 2. Najpierw aktywujemy, aby mieć status ACTIVE
+        mockMvc.perform(put("/api/users/{id}/activate", userId))
+                .andExpect(status().isOk());
+
+        // 3. Upewnij się, że teraz status to ACTIVE
+        mockMvc.perform(get("/api/users")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(userId.intValue()))
+                .andExpect(jsonPath("$[0].status").value(UserStatus.ACTIVE.name()));
+
+        // 4. Dezaktywuj użytkownika
+        mockMvc.perform(put("/api/users/{id}/deactivate", userId))
+                .andExpect(status().isOk());
+
+        // 5. Po dezaktywacji sprawdź, że status jest INACTIVE
+        mockMvc.perform(get("/api/users")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(userId.intValue()))
+                .andExpect(jsonPath("$[0].status").value(UserStatus.INACTIVE.name()));
+    }
+
+    @Test
+    public void testDeactivate_NonExistingUser_ReturnsNotFound() throws Exception {
+        Long nonExistingId = 9999L;
+
+        mockMvc.perform(put("/api/users/{id}/deactivate", nonExistingId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error")
+                        .value(String.format(Messages.USER_NOT_FOUND, nonExistingId)));
+    }
+
+    @Test
+    public void testDeactivate_ExistingInactiveUser_StatusRemainsInactive() throws Exception {
+        // 1. Utwórz użytkownika (domyślnie INACTIVE)
+        CreateUserRequestDto createDto = new CreateUserRequestDto(
+                "Ola", "Nowak", "ola.nowak@example.com"
+        );
+        String createJson = mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createDto))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        JsonNode created = objectMapper.readTree(createJson);
+        Long userId = created.get("id").asLong();
+
+        // 2. Upewnij się, że status jest INACTIVE
+        mockMvc.perform(get("/api/users")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(userId.intValue()))
+                .andExpect(jsonPath("$[0].status").value(UserStatus.INACTIVE.name()));
+
+        // 3. Wywołaj ponownie dezaktywację (już jest INACTIVE)
+        mockMvc.perform(put("/api/users/{id}/deactivate", userId))
+                .andExpect(status().isOk());
+
+        // 4. Sprawdź ponownie, że status wciąż jest INACTIVE
+        mockMvc.perform(get("/api/users")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(userId.intValue()))
+                .andExpect(jsonPath("$[0].status").value(UserStatus.INACTIVE.name()));
     }
 }

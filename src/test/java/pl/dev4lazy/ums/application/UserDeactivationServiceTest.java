@@ -18,7 +18,7 @@ import static org.testng.Assert.*;
 
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-public class UserInactivationServiceTest extends AbstractTestNGSpringContextTests {
+public class UserDeactivationServiceTest extends AbstractTestNGSpringContextTests {
 
     @Autowired
     private UserCreationService userCreationService;
@@ -27,7 +27,7 @@ public class UserInactivationServiceTest extends AbstractTestNGSpringContextTest
     private UserActivationService userActivationService;
 
     @Autowired
-    private UserInactivationService userInactivationService;
+    private UserDeactivationService userDeactivationService;
 
     @Autowired
     private UserRepositoryAdapter userRepositoryAdapter;
@@ -39,13 +39,13 @@ public class UserInactivationServiceTest extends AbstractTestNGSpringContextTest
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testInactivate_NullId_ThrowsIllegalArgumentException() {
-        userInactivationService.inactivate(null);
+        userDeactivationService.inactivate(null);
     }
 
     @Test(expectedExceptions = UserNotFoundException.class)
     public void testInactivate_NonExistingUser_ThrowsUserNotFoundException() {
         Long missingId = 12345L;
-        userInactivationService.inactivate(missingId);
+        userDeactivationService.inactivate(missingId);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class UserInactivationServiceTest extends AbstractTestNGSpringContextTest
                 "Przed dezaktywacją status powinien być ACTIVE");
 
         // 4. Dezaktywuj użytkownika
-        userInactivationService.inactivate(userId);
+        userDeactivationService.inactivate(userId);
 
         // 5. Pobierz ponownie z bazy i zweryfikuj status INACTIVE
         Optional<User> after = userRepositoryAdapter.findByUserId(new UserId(userId));
@@ -84,7 +84,7 @@ public class UserInactivationServiceTest extends AbstractTestNGSpringContextTest
                 "Początkowy status powinien być INACTIVE");
 
         // 3. Wywołaj inactivate ponownie (już jest INACTIVE)
-        userInactivationService.inactivate(userId);
+        userDeactivationService.inactivate(userId);
 
         // 4. Sprawdź, że status wciąż jest INACTIVE
         Optional<User> after = userRepositoryAdapter.findByUserId(new UserId(userId));

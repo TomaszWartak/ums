@@ -9,6 +9,7 @@ import pl.dev4lazy.ums.adapters.outbound.dto.UserResponseDto;
 import pl.dev4lazy.ums.application.ListUsersService;
 import pl.dev4lazy.ums.application.UserActivationService;
 import pl.dev4lazy.ums.application.UserCreationService;
+import pl.dev4lazy.ums.application.UserDeactivationService;
 import pl.dev4lazy.ums.utils.Messages;
 
 import java.util.List;
@@ -19,15 +20,18 @@ public class UserController {
 
     private final UserCreationService userCreationService;
     private final UserActivationService userActivationService;
+    private final UserDeactivationService userDeactivationService;
     private final ListUsersService listUsersService;
 
     public UserController(
             UserCreationService userCreationService,
             ListUsersService listUsersService,
-            UserActivationService userActivationService ) {
+            UserActivationService userActivationService,
+            UserDeactivationService userDeactivationService) {
         this.userCreationService = userCreationService;
         this.listUsersService = listUsersService;
         this.userActivationService = userActivationService;
+        this.userDeactivationService = userDeactivationService;
     }
 
     @GetMapping("/")
@@ -52,6 +56,12 @@ public class UserController {
     @PutMapping("/api/users/{id}/activate")
     public ResponseEntity<Void> activateUser(@PathVariable Long id) {
         userActivationService.activate( id );
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/api/users/{id}/deactivate")
+    public ResponseEntity<Void> deactivateUser(@PathVariable Long id) {
+        userDeactivationService.inactivate(id);
         return ResponseEntity.ok().build();
     }
 }

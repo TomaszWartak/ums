@@ -9,11 +9,11 @@ import pl.dev4lazy.ums.domain.repository.UserRepository;
 import pl.dev4lazy.ums.utils.Messages;
 
 @Service
-public class UserInactivationService {
+public class UserDeactivationService {
 
     private final UserRepository userRepository;
 
-    public UserInactivationService(UserRepository userRepository) {
+    public UserDeactivationService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
