@@ -1,5 +1,6 @@
 package pl.dev4lazy.ums.adapters.inbound.rest;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -16,8 +17,8 @@ import pl.dev4lazy.ums.application.UserCreationService;
 import pl.dev4lazy.ums.domain.model.user.UserStatus;
 import pl.dev4lazy.ums.utils.Messages;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -276,5 +277,62 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
                 .andExpect(jsonPath("$[1].lastName").value("Nowak"))
                 .andExpect(jsonPath("$[1].email").value("anna.nowak@example.com"))
                 .andExpect(jsonPath("$[1].status").value(UserStatus.INACTIVE.name()));
+    }
+
+    @Test
+    public void testActivate_ExistingUser_SetsStatusToActive() throws Exception {
+        // 1. Utwórz nowego użytkownika za pomocą POST /api/users
+        CreateUserRequestDto createDto = new CreateUserRequestDto(
+                "Marek", "Nowak", "marek.nowak@example.com"
+        );
+        String createResponseJson = mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createDto))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // Wyciągnij ID z odpowiedzi { "id": <number> }
+        JsonNode createResponse = objectMapper.readTree(createResponseJson);
+        Long userId = createResponse.get("id").asLong();
+
+        // 2. Upewnij się, że przed aktywacją status jest INACTIVE
+        mockMvc.perform(get("/api/users")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(userId.intValue()))
+                .andExpect(jsonPath("$[0].status").value(UserStatus.INACTIVE.name()));
+
+        // 3. Wywołaj PUT /api/users/{id}/activate
+        mockMvc.perform( put("/api/users/{id}/activate", userId) )
+                .andExpect(status().isOk());
+
+        // 4. Po aktywacji sprawdź ponownie GET /api/users i weryfikuj status ACTIVE
+        mockMvc.perform(get("/api/users")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(userId.intValue()))
+                .andExpect(jsonPath("$[0].status").value(UserStatus.ACTIVE.name()));
+    }
+
+    @Test
+    public void testActivate_NonExistingUser_ReturnsNotFound() throws Exception {
+        // Załóżmy, że w bazie nie ma użytkownika o ID 9999
+        Long nonExistingId = 9999L;
+
+        // Wywołaj PUT /api/users/{nonExistingId}/activate
+        mockMvc.perform(put("/api/users/{id}/activate", nonExistingId)
+                        .accept(MediaType.APPLICATION_JSON))
+                // Oczekujemy 404 Not Found
+                .andExpect(status().isNotFound())
+                // Oraz, że odpowiedź jest JSON-em zawierającym klucz "error"
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error")
+                        .value( equalTo(String.format(Messages.USER_NOT_FOUND, nonExistingId))));
     }
 }

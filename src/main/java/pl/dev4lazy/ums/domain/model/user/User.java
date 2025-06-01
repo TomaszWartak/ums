@@ -61,16 +61,20 @@ public class User {
 
 
     public void activate() {
+        /* TODO czy to ma sens?
         if (status == UserStatus.ACTIVE) {
             throw new IllegalStateException( Messages.USER_IS_ACTIVE_ALREADY);
         }
+         */
         this.status = UserStatus.ACTIVE;
     }
 
     public void deactivate() {
+        /* TODO czy to ma sens?
         if (status == UserStatus.INACTIVE) {
             throw new IllegalStateException( Messages.USER_IS_INACTIVE_ALREADY );
         }
+        */
         this.status = UserStatus.INACTIVE;
     }
 
