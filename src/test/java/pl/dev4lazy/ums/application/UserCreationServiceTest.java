@@ -69,7 +69,7 @@ public class UserCreationServiceTest {
         String email = "test@example.com";
 
         try {
-            userCreationService.create(null, lastName, email);
+            userCreationService.create( firstName, lastName, email);
         } finally {
             assertTrue( userRepository.findAll().isEmpty(),
                     "Repozytorium nie powinno zawierać żadnego wpisu, gdy firstName jest null");
