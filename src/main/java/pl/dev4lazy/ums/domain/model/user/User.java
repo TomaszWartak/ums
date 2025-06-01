@@ -1,9 +1,15 @@
 package pl.dev4lazy.ums.domain.model.user;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import pl.dev4lazy.ums.utils.Messages;
 
 import java.util.Objects;
 
+@Setter
+@Getter
+@Builder
 public class User {
     private UserId id;
     private PersonalName name;
@@ -21,44 +27,11 @@ public class User {
         this(null, name, email, UserStatus.INACTIVE);
     }
 
-    public UserId getId() {
-        return id;
-    }
-
-    public void setId(UserId id) {
-        this.id = id;
-    }
-
-    public PersonalName getName() {
-        return name;
-    }
-
-    public void setName(PersonalName name) {
-        this.name = name;
-    }
-
-    public Email getEmail() {
-        return email;
-    }
-
-    public void setEmail(Email email) {
-        this.email = email;
-    }
-
-    public UserStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(UserStatus status) {
-        this.status = status;
-    }
-
     public static User create( PersonalName name, Email email ) {
         Objects.requireNonNull(name, Messages.NAME_NULL );
         Objects.requireNonNull(email, Messages.EMAIL_NULL );
         return new User(name, email);
     }
-
 
     public void activate() {
         /* TODO czy to ma sens?

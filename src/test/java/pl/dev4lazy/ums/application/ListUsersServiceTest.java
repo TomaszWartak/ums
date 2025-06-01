@@ -29,7 +29,6 @@ public class ListUsersServiceTest extends AbstractTestNGSpringContextTests {
 
     @BeforeMethod
     public void cleanDatabase() {
-        // Wyczyść tabelę przed każdym testem
         userRepositoryAdapter.deleteAll();
     }
 
@@ -42,18 +41,15 @@ public class ListUsersServiceTest extends AbstractTestNGSpringContextTests {
 
     @Test
     public void testListAll_WithExistingUsers_ReturnsMappedDtos() {
-        // Utwórzmy dwóch użytkowników przez serwis tworzenia
         userCreationService.create("Jan", "Kowalski", "jan.kowalski@example.com");
         userCreationService.create("Anna", "Nowak", "anna.nowak@example.com");
 
-        // Wywołaj listAll, powinno zwrócić listę dwóch DTO
         List<UserResponseDto> result = listUsersService.listAll();
 
         assertNotNull(result);
         assertEquals(result.size(), 2, "Powinny być dwa elementy w liście");
 
-        // Sprawdźmy, że DTO zawierają prawidłowe pola:
-        UserResponseDto dto1 = result.get(0);
+        UserResponseDto dto1 = result.getFirst();
         assertEquals(dto1.firstName(), "Jan");
         assertEquals(dto1.lastName(), "Kowalski");
         assertEquals(dto1.email(), "jan.kowalski@example.com");

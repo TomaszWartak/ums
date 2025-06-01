@@ -29,25 +29,15 @@ public class UserCreationServiceTest {
 
     @Test
     public void testCreateUser_WithProperData_Success() {
-        // --- Przygotowanie danych wejściowych ---
         String firstName = "Jan";
         String lastName  = "Kowalski";
         String emailStr  = "jan.kowalski@example.com";
 
-        // --- Przygotowanie „zapisanej” encji zwracanej przez mockowane repo ---
-        User newUser = User.create(
-                new PersonalName( firstName, lastName ),
-                new Email( emailStr )
-        );
-
-        // --- Wywołanie metody serwisu ---
         Long returnedId = userCreationService.create( firstName, lastName, emailStr );
 
-        // --- Weryfikacje zwróconego ID ---
         assertNotNull( returnedId, Messages.USER_ID_NULL);
         assertEquals( returnedId.longValue(), 1L);
 
-        // --- Pobranie zapisanego obiektu User
         User savedUser = userRepository
                 .findById( 1L )
                 .orElseThrow(
@@ -79,10 +69,8 @@ public class UserCreationServiceTest {
         String email = "test@example.com";
 
         try {
-            // Tutaj firstName = null → w PersonalName albo w metodzie factory rzuci NullPointerException
             userCreationService.create(null, lastName, email);
         } finally {
-            // Repozytorium wciąż puste
             assertTrue( userRepository.findAll().isEmpty(),
                     "Repozytorium nie powinno zawierać żadnego wpisu, gdy firstName jest null");
         }
@@ -110,7 +98,6 @@ public class UserCreationServiceTest {
         try {
             userCreationService.create(firstName, lastName, email );
         } finally {
-            // Repozytorium nie powinno zapisać niczego, bo metoda powinna rzucić wyjątek
             assertTrue( userRepository.findAll().isEmpty(),
                     "Nie powinno być żadnego zapisu w repozytorium, gdy format e-maila jest niepoprawny");
         }
@@ -124,9 +111,4 @@ public class UserCreationServiceTest {
         userCreationService.create("Anna", "Nowak", email);
     }
 
-    // TODO
-    /*
-    testCreateUserTrimsInputStrings – jeżeli chcesz, aby CreateUserService przycinał białe znaki z początku/końca
-    (np. firstName.trim()), możesz to sprawdzić w podobny sposób za pomocą ArgumentCaptor.
-     */
 }

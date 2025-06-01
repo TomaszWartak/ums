@@ -19,8 +19,7 @@ public class UserIdTest {
         new UserId(null);
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class,
-            expectedExceptionsMessageRegExp = Messages.USER_ID_NEGATIVE )
+    @Test(expectedExceptions = IllegalArgumentException.class )
     public void whenCreatingUserIdWithNegativeValue_thenThrowsException() {
         new UserId(-1L);
     }

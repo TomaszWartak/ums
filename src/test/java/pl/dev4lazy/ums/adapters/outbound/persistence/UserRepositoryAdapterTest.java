@@ -6,7 +6,6 @@ import org.testng.annotations.Test;
 import pl.dev4lazy.ums.domain.model.user.Email;
 import pl.dev4lazy.ums.domain.model.user.PersonalName;
 import pl.dev4lazy.ums.domain.model.user.User;
-import pl.dev4lazy.ums.domain.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -17,9 +16,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.testng.Assert.*;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
@@ -40,7 +36,6 @@ public class UserRepositoryAdapterTest extends AbstractTestNGSpringContextTests 
                 new PersonalName("Jan", "Kowalski"),
                 new Email("jan.kowalski@example.com")
         );
-        // Zakładamy, że user ma metodę getId() która zwraca null przed ustawieniem
         assertNull(user.getId());
 
         User savedUser = userRepositoryAdapter.save(user);
@@ -63,7 +58,6 @@ public class UserRepositoryAdapterTest extends AbstractTestNGSpringContextTests 
 
         User savedUser = userRepositoryAdapter.save(user);
 
-        // Zmiana danych użytkownika
         savedUser.setName( new PersonalName("Anna", "K.") );
         savedUser.setEmail( new Email("anna.k@example.com") );
 

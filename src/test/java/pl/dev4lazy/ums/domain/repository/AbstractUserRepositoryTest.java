@@ -28,7 +28,6 @@ public abstract class AbstractUserRepositoryTest {
                 new PersonalName("Jan", "Kowalski"),
                 new Email("jan.kowalski@example.com")
         );
-        // Zakładamy, że user ma metodę getId() która zwraca null przed ustawieniem
         assertNull(user.getId());
 
         User savedUser = repository.save(user);
@@ -51,7 +50,6 @@ public abstract class AbstractUserRepositoryTest {
 
         User savedUser = repository.save(user);
 
-        // Zmiana danych użytkownika
         savedUser.setName( new PersonalName("Anna", "K.") );
         savedUser.setEmail( new Email("anna.k@example.com") );
 

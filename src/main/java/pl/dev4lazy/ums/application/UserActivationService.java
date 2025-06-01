@@ -28,10 +28,8 @@ public class UserActivationService {
                 .findByUserId( userId )
                 .orElseThrow( () -> new UserNotFoundException( String.format( Messages.USER_NOT_FOUND, idValue ) ) );
 
-        // Zakładamy, że encja User ma metodę `activate()`, która ustawia status na ACTIVE.
         user.activate();
 
-        // Zapisz zmodyfikowanego użytkownika
         userRepository.save(user);
     }
 }

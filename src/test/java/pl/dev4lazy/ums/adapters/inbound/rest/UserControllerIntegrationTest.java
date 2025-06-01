@@ -13,7 +13,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pl.dev4lazy.ums.adapters.inbound.dto.CreateUserRequestDto;
 import pl.dev4lazy.ums.adapters.outbound.persistence.UserRepositoryAdapter;
-import pl.dev4lazy.ums.application.UserCreationService;
 import pl.dev4lazy.ums.domain.model.user.UserStatus;
 import pl.dev4lazy.ums.utils.Messages;
 
@@ -32,18 +31,11 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
     @Autowired
     private UserRepositoryAdapter userRepositoryAdapter;
 
-    /* TODO
-    @Autowired
-    private UserCreationService userCreationService;
-
-     */
-
     @Autowired
     private ObjectMapper objectMapper;
 
         @BeforeMethod
     public void cleanDatabase() {
-        // Przed każdym testem czyścimy tabelę users w H2
         userRepositoryAdapter.deleteAll();
     }
 
@@ -230,7 +222,7 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
         );
 
         mockMvc.perform(post("/api/users")
-                        .contentType(MediaType.TEXT_PLAIN)  // zamiast application/json
+                        .contentType(MediaType.TEXT_PLAIN)
                         .content(objectMapper.writeValueAsString(dto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnsupportedMediaType());
@@ -247,7 +239,6 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
 
     @Test
     public void testGetAllUsers_WithExistingUsers_ReturnsListOfUsers() throws Exception {
-        // 1. Utwórzmy kilku użytkowników przez endpoint POST /api/users
         CreateUserRequestDto dto1 = new CreateUserRequestDto(
                 "Jan", "Kowalski", "jan.kowalski@example.com"
         );
@@ -278,14 +269,11 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                // Sprawdźmy, że zwrócono dokładnie 2 elementy w tablicy
                 .andExpect(jsonPath("$.length()").value(2))
-                // Weryfikujemy pola pierwszego użytkownika (kolejność w tablicy wg zapisu do DB)
                 .andExpect(jsonPath("$[0].firstName").value("Jan"))
                 .andExpect(jsonPath("$[0].lastName").value("Kowalski"))
                 .andExpect(jsonPath("$[0].email").value("jan.kowalski@example.com"))
                 .andExpect(jsonPath("$[0].status").value(UserStatus.INACTIVE.name()))
-                // Weryfikujemy pola drugiego użytkownika
                 .andExpect(jsonPath("$[1].firstName").value("Anna"))
                 .andExpect(jsonPath("$[1].lastName").value("Nowak"))
                 .andExpect(jsonPath("$[1].email").value("anna.nowak@example.com"))
@@ -294,7 +282,6 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
 
     @Test
     public void testActivate_ExistingUser_SetsStatusToActive() throws Exception {
-        // 1. Utwórz nowego użytkownika za pomocą POST /api/users
         CreateUserRequestDto createDto = new CreateUserRequestDto(
                 "Marek", "Nowak", "marek.nowak@example.com"
         );
@@ -308,11 +295,9 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
                 .getResponse()
                 .getContentAsString();
 
-        // Wyciągnij ID z odpowiedzi { "id": <number> }
         JsonNode createResponse = objectMapper.readTree(createResponseJson);
         Long userId = createResponse.get("id").asLong();
 
-        // 2. Upewnij się, że przed aktywacją status jest INACTIVE
         mockMvc.perform(get("/api/users")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -320,11 +305,9 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
                 .andExpect(jsonPath("$[0].id").value(userId.intValue()))
                 .andExpect(jsonPath("$[0].status").value(UserStatus.INACTIVE.name()));
 
-        // 3. Wywołaj PUT /api/users/{id}/activate
         mockMvc.perform( put("/api/users/{id}/activate", userId) )
                 .andExpect(status().isOk());
 
-        // 4. Po aktywacji sprawdź ponownie GET /api/users i weryfikuj status ACTIVE
         mockMvc.perform(get("/api/users")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -335,15 +318,11 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
 
     @Test
     public void testActivate_NonExistingUser_ReturnsNotFound() throws Exception {
-        // Załóżmy, że w bazie nie ma użytkownika o ID 9999
         Long nonExistingId = 9999L;
 
-        // Wywołaj PUT /api/users/{nonExistingId}/activate
         mockMvc.perform(put("/api/users/{id}/activate", nonExistingId)
                         .accept(MediaType.APPLICATION_JSON))
-                // Oczekujemy 404 Not Found
                 .andExpect(status().isNotFound())
-                // Oraz, że odpowiedź jest JSON-em zawierającym klucz "error"
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error")
                         .value( equalTo(String.format(Messages.USER_NOT_FOUND, nonExistingId))));
@@ -351,7 +330,6 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
 
     @Test
     public void testDeactivate_ExistingActiveUser_SetsStatusToInactive() throws Exception {
-        // 1. Utwórz użytkownika (domyślnie status INACTIVE)
         CreateUserRequestDto createDto = new CreateUserRequestDto(
                 "Marek", "Nowak", "marek.nowak@example.com"
         );
@@ -366,11 +344,9 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
         JsonNode created = objectMapper.readTree(createJson);
         Long userId = created.get("id").asLong();
 
-        // 2. Najpierw aktywujemy, aby mieć status ACTIVE
         mockMvc.perform(put("/api/users/{id}/activate", userId))
                 .andExpect(status().isOk());
 
-        // 3. Upewnij się, że teraz status to ACTIVE
         mockMvc.perform(get("/api/users")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -378,11 +354,9 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
                 .andExpect(jsonPath("$[0].id").value(userId.intValue()))
                 .andExpect(jsonPath("$[0].status").value(UserStatus.ACTIVE.name()));
 
-        // 4. Dezaktywuj użytkownika
         mockMvc.perform(put("/api/users/{id}/deactivate", userId))
                 .andExpect(status().isOk());
 
-        // 5. Po dezaktywacji sprawdź, że status jest INACTIVE
         mockMvc.perform(get("/api/users")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -405,7 +379,6 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
 
     @Test
     public void testDeactivate_ExistingInactiveUser_StatusRemainsInactive() throws Exception {
-        // 1. Utwórz użytkownika (domyślnie INACTIVE)
         CreateUserRequestDto createDto = new CreateUserRequestDto(
                 "Ola", "Nowak", "ola.nowak@example.com"
         );
@@ -420,7 +393,6 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
         JsonNode created = objectMapper.readTree(createJson);
         Long userId = created.get("id").asLong();
 
-        // 2. Upewnij się, że status jest INACTIVE
         mockMvc.perform(get("/api/users")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -428,11 +400,9 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
                 .andExpect(jsonPath("$[0].id").value(userId.intValue()))
                 .andExpect(jsonPath("$[0].status").value(UserStatus.INACTIVE.name()));
 
-        // 3. Wywołaj ponownie dezaktywację (już jest INACTIVE)
         mockMvc.perform(put("/api/users/{id}/deactivate", userId))
                 .andExpect(status().isOk());
 
-        // 4. Sprawdź ponownie, że status wciąż jest INACTIVE
         mockMvc.perform(get("/api/users")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

@@ -43,34 +43,28 @@ public class UserActivationServiceTest extends AbstractTestNGSpringContextTests 
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testActivate_NullId_ThrowsIllegalArgumentException() {
-        // Wywołanie z null powinno rzucić IllegalArgumentException
         userActivationService.activate(null);
     }
 
     @Test(expectedExceptions = UserNotFoundException.class)
     public void testActivate_NonExistingUser_ThrowsUserNotFoundException() {
         Long nonExistingId = 999L;
-        // Baza jest pusta, więc wywołanie activate na nieistniejącym ID wyrzuci UserNotFoundException
         userActivationService.activate(nonExistingId);
     }
 
     @Test
     public void testActivate_ExistingUser_StatusBecomesActive() {
-        // 1. Utwórzmy użytkownika; domyślnie status INACTIVE
         Long newUserId = userCreationService.create(
                 "Marek", "Wójcik", "marek.wojcik@example.com"
         );
 
-        // Najpierw sprawdźmy, że w bazie faktycznie istnieje i że status = INACTIVE
         Optional<User> maybeUserBefore = userRepositoryAdapter.findByUserId(new UserId(newUserId));
         assertTrue(maybeUserBefore.isPresent(), "Użytkownik powinien być w bazie przed aktywacją");
         assertEquals(maybeUserBefore.get().getStatus(), pl.dev4lazy.ums.domain.model.user.UserStatus.INACTIVE,
                 "Status powinien być INACTIVE przed aktywacją");
 
-        // 2. Aktywujemy użytkownika
         userActivationService.activate(newUserId);
 
-        // 3. Pobierzmy ponownie z bazy i sprawdźmy, czy status to ACTIVE
         Optional<User> maybeUserAfter = userRepositoryAdapter.findByUserId(new UserId(newUserId));
         assertTrue(maybeUserAfter.isPresent(), "Użytkownik powinien być nadal w bazie po aktywacji");
         assertEquals(maybeUserAfter.get().getStatus(), pl.dev4lazy.ums.domain.model.user.UserStatus.ACTIVE,
@@ -82,19 +76,15 @@ public class UserActivationServiceTest extends AbstractTestNGSpringContextTests 
         // użytkownik domyślnie INACTIVE
         Long userId = userCreationService.create("Ola", "Nowak", "ola.n@example.com");
 
-        // 2. Sprawdź, że początkowo status jest INACTIVE
         Optional<User> initial = userRepositoryAdapter.findByUserId(new UserId(userId));
         assertTrue(initial.isPresent());
         assertEquals(initial.get().getStatus(), UserStatus.INACTIVE,
                 "Początkowy status powinien być INACTIVE");
 
-        // Aktywuj użytkownika
         userActivationService.activate(userId);
 
-        // 3. Wywołaj activate ponownie
         userActivationService.activate(userId);
 
-        // 4. Sprawdź, że status wciąż jest ACTIVE
         Optional<User> after = userRepositoryAdapter.findByUserId(new UserId(userId));
         assertTrue(after.isPresent());
         assertEquals(after.get().getStatus(), UserStatus.ACTIVE,

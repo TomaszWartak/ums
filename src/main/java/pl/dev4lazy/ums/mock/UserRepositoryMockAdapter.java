@@ -13,9 +13,7 @@ public class UserRepositoryMockAdapter implements UserRepository {
     @Override
     public User save( User user ) {
         if (user.getId() == null) {
-            // Generujemy ID (np. autoinkrementacja)
             UserId newUserId = new UserId( storage.size() + 1L);
-            // Zakładamy, że User ma konstruktor lub builder z id
             user = User.create( user.getName(), user.getEmail() ); // dopasuj do swojej klasy User
             user.setId( newUserId );
         }
@@ -61,10 +59,7 @@ public class UserRepositoryMockAdapter implements UserRepository {
                         .keySet()
                         .stream()
                         .max(Long::compareTo);
-        if (maxKey.isEmpty()) {
-            return 0L;
-        }
-        return maxKey.get();
+        return maxKey.orElse(0L);
     }
 
     @Override

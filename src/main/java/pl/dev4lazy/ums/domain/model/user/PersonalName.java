@@ -1,5 +1,6 @@
 package pl.dev4lazy.ums.domain.model.user;
 
+import jakarta.validation.constraints.NotNull;
 import pl.dev4lazy.ums.utils.Messages;
 
 import java.util.Objects;

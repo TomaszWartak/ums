@@ -8,14 +8,11 @@ public class UserCreationTest {
 
     @Test
     public void whenRegisteringUser_thenFieldsAreSetAndStatusIsInactive() {
-        // --- Przygotowanie poprawnych VO ---
         PersonalName name = new PersonalName("Anna", "Nowak");
         Email email = new Email("anna.nowak@example.com");
 
-        // --- Wywołanie fabryki ---
         User user = User.create(name, email);
 
-        // --- Weryfikacja pól ---
         assertNull(user.getId(), "Id powinno być null przed zapisaniem w repozytorium");
         assertEquals(user.getName(), name, "Imię i nazwisko powinny być takie, jak podane w VO");
         assertEquals(user.getEmail(), email, "E-mail powinien być taki, jak podany w VO");
