@@ -13,19 +13,19 @@ import java.util.stream.Collectors;
 @Component
 public class UserRepositoryAdapter implements UserRepository {
     private final SpringDataUserJpa springDataUserJpa;
-    private final UserEntityMapper mapper;
+    private final UserEntityMapper userEntityMapper;
 
     public UserRepositoryAdapter( SpringDataUserJpa springDataUserJpa,
-                                 UserEntityMapper mapper ) {
+                                 UserEntityMapper userEntityMapper) {
         this.springDataUserJpa = springDataUserJpa;
-        this.mapper = mapper;
+        this.userEntityMapper = userEntityMapper;
     }
 
     @Override
     public User save(User user) {
-        UserEntity entity = mapper.toEntity( user );
+        UserEntity entity = userEntityMapper.toEntity( user );
         UserEntity savedEntity = springDataUserJpa.save(entity);
-        return mapper.toDomain( savedEntity );
+        return userEntityMapper.toDomain( savedEntity );
     }
     @Override
     public Optional<User> findByUserId(UserId id) {
@@ -36,15 +36,26 @@ public class UserRepositoryAdapter implements UserRepository {
     public Optional<User> findById(Long id) {
         return springDataUserJpa
                 .findById( id )
-                .map(mapper::toDomain);
+                .map(userEntityMapper::toDomain);
     }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return springDataUserJpa
+                .findByEmail( email )
+                .map(userEntityMapper::toDomain);    }
 
     @Override
     public List<User> findAll() {
         return springDataUserJpa.findAll()
                 .stream()
-                .map(mapper::toDomain)
+                .map(userEntityMapper::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return springDataUserJpa.findByEmail( email ).isPresent();
     }
 
     @Override

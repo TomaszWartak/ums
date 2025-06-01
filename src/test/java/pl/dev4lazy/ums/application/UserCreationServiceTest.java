@@ -1,13 +1,13 @@
-package pl.dev4lazy.ums.domain.service;
+package pl.dev4lazy.ums.application;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import pl.dev4lazy.ums.application.UserCreationService;
 import pl.dev4lazy.ums.domain.model.user.Email;
 import pl.dev4lazy.ums.domain.model.user.PersonalName;
 import pl.dev4lazy.ums.domain.model.user.User;
 import pl.dev4lazy.ums.domain.repository.UserRepository;
+import pl.dev4lazy.ums.domain.service.EmailAlreadyExistsException;
 import pl.dev4lazy.ums.mock.UserRepositoryMockAdapter;
 
 import static org.testng.Assert.*;
@@ -114,14 +114,16 @@ public class UserCreationServiceTest {
         }
     }
 
+    @Test(expectedExceptions = EmailAlreadyExistsException.class)
+    public void testCreateUser_WithExistingEmail_ThrowsException() {
+        String email = "duplicate@example.com";
+
+        userCreationService.create("Jan", "Kowalski", email);
+        userCreationService.create("Anna", "Nowak", email);
+    }
+
     // TODO
     /*
-    testCreateUserDuplicateEmailThrowsBusinessException –
-    jeżeli w domenie wprowadzisz regułę „e-mail musi być unikalny”
-    realizowaną przez UserDomainService lub w CreateUserService
-    (np. najpierw userRepository.existsByEmail(...) → rzut DuplicateEmailException),
-    to warto dodać test weryfikujący, że serwis nie wywołuje save(...), tylko zwraca odpowiedni wyjątek.
-
     testCreateUserTrimsInputStrings – jeżeli chcesz, aby CreateUserService przycinał białe znaki z początku/końca
     (np. firstName.trim()), możesz to sprawdzić w podobny sposób za pomocą ArgumentCaptor.
      */

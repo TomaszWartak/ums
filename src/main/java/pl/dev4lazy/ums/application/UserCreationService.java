@@ -6,6 +6,7 @@ import pl.dev4lazy.ums.domain.model.user.Email;
 import pl.dev4lazy.ums.domain.model.user.PersonalName;
 import pl.dev4lazy.ums.domain.model.user.User;
 import pl.dev4lazy.ums.domain.repository.UserRepository;
+import pl.dev4lazy.ums.domain.service.EmailAlreadyExistsException;
 
 @Service
 public class UserCreationService {
@@ -18,6 +19,9 @@ public class UserCreationService {
     @Transactional
     public Long create(String firstName, String lastName, String emailStr) {
         PersonalName name = new PersonalName(firstName, lastName);
+        if (userRepository.existsByEmail( emailStr )) {
+            throw new EmailAlreadyExistsException("Użytkownik o e-mailu " + emailStr + " już istnieje.");
+        }
         Email email = new Email(emailStr);
         User newUser = User.create(name, email);
 

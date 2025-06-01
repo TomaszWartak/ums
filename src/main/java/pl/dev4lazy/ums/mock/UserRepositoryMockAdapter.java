@@ -40,8 +40,29 @@ public class UserRepositoryMockAdapter implements UserRepository {
     }
 
     @Override
+    public Optional<User> findByEmail(String email) {
+        if (email == null) {
+            return Optional.empty();
+        }
+        return storage.values().stream()
+                .filter(user -> user.getEmail().emailValue().equals(email))
+                .findFirst();
+    }
+
+    @Override
     public List<User> findAll() {
         return new ArrayList<>(storage.values());
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        if (email == null) {
+            return false;
+        }
+        return storage
+                .values()
+                .stream()
+                .anyMatch(user -> user.getEmail().emailValue().equals(email) );
     }
 
     @Override
