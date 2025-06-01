@@ -9,6 +9,7 @@ import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
 
 import pl.dev4lazy.ums.adapters.outbound.persistence.UserRepositoryAdapter;
+import pl.dev4lazy.ums.domain.model.user.UserStatus;
 import pl.dev4lazy.ums.domain.service.UserNotFoundException;
 import pl.dev4lazy.ums.domain.model.user.User;
 import pl.dev4lazy.ums.domain.model.user.UserId;
@@ -74,5 +75,29 @@ public class UserActivationServiceTest extends AbstractTestNGSpringContextTests 
         assertTrue(maybeUserAfter.isPresent(), "Użytkownik powinien być nadal w bazie po aktywacji");
         assertEquals(maybeUserAfter.get().getStatus(), pl.dev4lazy.ums.domain.model.user.UserStatus.ACTIVE,
                 "Status powinien być ACTIVE po aktywacji");
+    }
+
+    @Test
+    public void testActivate_ExistingActiveUser_SaveStillCalledButStatusRemainsActive() {
+        // użytkownik domyślnie INACTIVE
+        Long userId = userCreationService.create("Ola", "Nowak", "ola.n@example.com");
+
+        // 2. Sprawdź, że początkowo status jest INACTIVE
+        Optional<User> initial = userRepositoryAdapter.findByUserId(new UserId(userId));
+        assertTrue(initial.isPresent());
+        assertEquals(initial.get().getStatus(), UserStatus.INACTIVE,
+                "Początkowy status powinien być INACTIVE");
+
+        // Aktywuj użytkownika
+        userActivationService.activate(userId);
+
+        // 3. Wywołaj activate ponownie
+        userActivationService.activate(userId);
+
+        // 4. Sprawdź, że status wciąż jest ACTIVE
+        Optional<User> after = userRepositoryAdapter.findByUserId(new UserId(userId));
+        assertTrue(after.isPresent());
+        assertEquals(after.get().getStatus(), UserStatus.ACTIVE,
+                "Status po ponownej aktywacji powinien pozostać ACTIVE");
     }
 }
