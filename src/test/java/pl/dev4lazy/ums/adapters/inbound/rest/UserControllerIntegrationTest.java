@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 import pl.dev4lazy.ums.adapters.inbound.dto.CreateUserRequestDto;
 import pl.dev4lazy.ums.adapters.outbound.persistence.UserRepositoryAdapter;
 import pl.dev4lazy.ums.application.UserCreationService;
+import pl.dev4lazy.ums.domain.model.user.UserStatus;
 import pl.dev4lazy.ums.utils.Messages;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -30,8 +31,11 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
     @Autowired
     private UserRepositoryAdapter userRepositoryAdapter;
 
+    /* TODO
     @Autowired
     private UserCreationService userCreationService;
+
+     */
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -218,4 +222,59 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
                 .andExpect(status().isUnsupportedMediaType());
     }
 
+    @Test
+    public void testGetAllUsers_EmptyDatabase_ReturnsEmptyList() throws Exception {
+        mockMvc.perform(get("/api/users")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    public void testGetAllUsers_WithExistingUsers_ReturnsListOfUsers() throws Exception {
+        // 1. Utwórzmy kilku użytkowników przez endpoint POST /api/users
+        CreateUserRequestDto dto1 = new CreateUserRequestDto(
+                "Jan", "Kowalski", "jan.kowalski@example.com"
+        );
+        CreateUserRequestDto dto2 = new CreateUserRequestDto(
+                "Anna", "Nowak", "anna.nowak@example.com"
+        );
+
+        mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto1))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto2))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+
+        mockMvc.perform(get("/api/users")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                // Sprawdźmy, że zwrócono dokładnie 2 elementy w tablicy
+                .andExpect(jsonPath("$.length()").value(2))
+                // Weryfikujemy pola pierwszego użytkownika (kolejność w tablicy wg zapisu do DB)
+                .andExpect(jsonPath("$[0].firstName").value("Jan"))
+                .andExpect(jsonPath("$[0].lastName").value("Kowalski"))
+                .andExpect(jsonPath("$[0].email").value("jan.kowalski@example.com"))
+                .andExpect(jsonPath("$[0].status").value(UserStatus.INACTIVE.name()))
+                // Weryfikujemy pola drugiego użytkownika
+                .andExpect(jsonPath("$[1].firstName").value("Anna"))
+                .andExpect(jsonPath("$[1].lastName").value("Nowak"))
+                .andExpect(jsonPath("$[1].email").value("anna.nowak@example.com"))
+                .andExpect(jsonPath("$[1].status").value(UserStatus.INACTIVE.name()));
+    }
 }

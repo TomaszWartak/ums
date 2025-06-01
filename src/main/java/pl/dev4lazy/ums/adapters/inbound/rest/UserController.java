@@ -8,18 +8,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import pl.dev4lazy.ums.adapters.inbound.dto.CreateUserRequestDto;
+import pl.dev4lazy.ums.adapters.outbound.dto.UserResponseDto;
+import pl.dev4lazy.ums.application.ListUsersService;
 import pl.dev4lazy.ums.application.UserCreationService;
 import pl.dev4lazy.ums.utils.Messages;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
 public class UserController {
 
     private final UserCreationService userCreationService;
+    private final ListUsersService listUsersService;
 
-    public UserController( UserCreationService userCreationService) {
+    public UserController( UserCreationService userCreationService, ListUsersService listUsersService) {
         this.userCreationService = userCreationService;
+        this.listUsersService = listUsersService;
     }
 
     @GetMapping("/")
@@ -35,5 +40,10 @@ public class UserController {
                 .body( Map.of("id", newId) );
     }
 
+    @GetMapping("/api/users")
+    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
+        List<UserResponseDto> users = listUsersService.listAll();
+        return ResponseEntity.ok(users);
+    }
 
 }
