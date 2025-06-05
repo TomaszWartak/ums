@@ -53,9 +53,9 @@ public class UserDeactivationServiceTest extends AbstractTestNGSpringContextTest
 
     @Test
     public void testInactivate_ExistingActiveUser_StatusBecomesInactive() {
-        Long userId = userCreationService.create("Tomek", "Kowalski", "tomek.k@example.com");
+        Long userId = userCreationService.execute("Tomek", "Kowalski", "tomek.k@example.com");
 
-        userActivationService.activate(userId);
+        userActivationService.execute(userId);
 
         Optional<User> before = userRepositoryAdapter.findByUserId(new UserId(userId));
         assertTrue(before.isPresent());
@@ -72,7 +72,7 @@ public class UserDeactivationServiceTest extends AbstractTestNGSpringContextTest
 
     @Test
     public void testInactivate_ExistingInactiveUser_SaveStillCalledButStatusRemainsInactive() {
-        Long userId = userCreationService.create("Ola", "Nowak", "ola.n@example.com");
+        Long userId = userCreationService.execute("Ola", "Nowak", "ola.n@example.com");
 
         Optional<User> initial = userRepositoryAdapter.findByUserId(new UserId(userId));
         assertTrue(initial.isPresent());

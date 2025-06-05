@@ -45,18 +45,18 @@ public class UserActivationServiceTest extends AbstractTestNGSpringContextTests 
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testActivate_NullId_ThrowsIllegalArgumentException() {
-        userActivationService.activate(null);
+        userActivationService.execute(null);
     }
 
     @Test(expectedExceptions = UserNotFoundException.class)
     public void testActivate_NonExistingUser_ThrowsUserNotFoundException() {
         Long nonExistingId = 999L;
-        userActivationService.activate(nonExistingId);
+        userActivationService.execute(nonExistingId);
     }
 
     @Test
     public void testActivate_ExistingUser_StatusBecomesActive() {
-        Long newUserId = userCreationService.create(
+        Long newUserId = userCreationService.execute(
                 "Marek", "Wójcik", "marek.wojcik@example.com"
         );
 
@@ -65,7 +65,7 @@ public class UserActivationServiceTest extends AbstractTestNGSpringContextTests 
         assertEquals(maybeUserBefore.get().getStatus(), pl.dev4lazy.ums.domain.model.user.UserStatus.INACTIVE,
                 "Status powinien być INACTIVE przed aktywacją");
 
-        userActivationService.activate(newUserId);
+        userActivationService.execute(newUserId);
 
         Optional<User> maybeUserAfter = userRepositoryAdapter.findByUserId(new UserId(newUserId));
         assertTrue(maybeUserAfter.isPresent(), "Użytkownik powinien być nadal w bazie po aktywacji");
@@ -76,16 +76,16 @@ public class UserActivationServiceTest extends AbstractTestNGSpringContextTests 
     @Test
     public void testActivate_ExistingActiveUser_SaveStillCalledButStatusRemainsActive() {
         // użytkownik domyślnie INACTIVE
-        Long userId = userCreationService.create("Ola", "Nowak", "ola.n@example.com");
+        Long userId = userCreationService.execute("Ola", "Nowak", "ola.n@example.com");
 
         Optional<User> initial = userRepositoryAdapter.findByUserId(new UserId(userId));
         assertTrue(initial.isPresent());
         assertEquals(initial.get().getStatus(), UserStatus.INACTIVE,
                 "Początkowy status powinien być INACTIVE");
 
-        userActivationService.activate(userId);
+        userActivationService.execute(userId);
 
-        userActivationService.activate(userId);
+        userActivationService.execute(userId);
 
         Optional<User> after = userRepositoryAdapter.findByUserId(new UserId(userId));
         assertTrue(after.isPresent());

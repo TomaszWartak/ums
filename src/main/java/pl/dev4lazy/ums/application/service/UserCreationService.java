@@ -2,6 +2,7 @@ package pl.dev4lazy.ums.application.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.dev4lazy.ums.application.usecase.CreateUserUseCase;
 import pl.dev4lazy.ums.domain.model.user.Email;
 import pl.dev4lazy.ums.domain.model.user.PersonalName;
 import pl.dev4lazy.ums.domain.model.user.User;
@@ -10,7 +11,7 @@ import pl.dev4lazy.ums.domain.service.EmailAlreadyExistsException;
 import pl.dev4lazy.ums.utils.Messages;
 
 @Service
-public class UserCreationService {
+public class UserCreationService implements CreateUserUseCase {
     private final UserRepository userRepository;
 
     public UserCreationService(UserRepository userRepository) {
@@ -18,7 +19,7 @@ public class UserCreationService {
     }
 
     @Transactional
-    public Long create(String firstName, String lastName, String emailStr) {
+    public Long execute(String firstName, String lastName, String emailStr) {
         PersonalName name = new PersonalName(firstName, lastName);
         if (userRepository.existsByEmail( emailStr )) {
             throw new EmailAlreadyExistsException( String.format( Messages.USER_EMAIL_DUPLICATED, emailStr ) );

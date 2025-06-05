@@ -46,7 +46,7 @@ public class UserController {
 
     @PostMapping("/api/users")
     public ResponseEntity<Map<String, Long>> createUser( @Valid @RequestBody CreateUserRequestDto dto) {
-        Long newId = userCreationService.create( dto.firstName(), dto.lastName(), dto.email());
+        Long newId = userCreationService.execute( dto.firstName(), dto.lastName(), dto.email());
         return ResponseEntity
                 .status( HttpStatus.CREATED)
                 .body( Map.of("id", newId) );
@@ -72,7 +72,7 @@ public class UserController {
 
     @PutMapping("/api/users/{id}/activate")
     public ResponseEntity<Void> activateUser(@PathVariable Long id) {
-        userActivationService.activate( id );
+        userActivationService.execute( id );
         return ResponseEntity.ok().build();
     }
 

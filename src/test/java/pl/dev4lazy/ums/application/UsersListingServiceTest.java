@@ -43,8 +43,8 @@ public class UsersListingServiceTest extends AbstractTestNGSpringContextTests {
 
     @Test
     public void testListAll_WithExistingUsers_ReturnsMappedDtos() {
-        userCreationService.create("Jan", "Kowalski", "jan.kowalski@example.com");
-        userCreationService.create("Anna", "Nowak", "anna.nowak@example.com");
+        userCreationService.execute("Jan", "Kowalski", "jan.kowalski@example.com");
+        userCreationService.execute("Anna", "Nowak", "anna.nowak@example.com");
 
         List<UserResponseDto> result = usersListingService.listAll();
 
