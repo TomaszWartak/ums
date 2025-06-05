@@ -17,6 +17,8 @@ public class Messages {
     public static final String USER_ID_NEGATIVE = "UserId musi być dodatnie: %s";
     public static final String FIRST_NAME_EMPTY = "Dane imienia nie mogą być puste";
     public static final String LAST_NAME_EMPTY = "Dane nazwiska nie mogą być puste";
+    public static final String FIRST_NAME_LENGTH_NOT_VALID = "Dane imienia muszą mieć minimum 2 znaki i maksimum 50 znaków";
+    public static final String LAST_NAME_LENGTH_NOT_VALID = "Dane nazwiska muszą mieć minimum 2 znaki i maksimum 50 znaków";
     public static final String NAME_EMPTY = "Imię i nazwisko nie mogą być puste";
     public static final String NAME_NULL = "Imię i nazwisko nie mogą null";
     public static final String EMAIL_EMPTY = "Dane email nie mogą być puste";

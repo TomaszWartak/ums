@@ -7,6 +7,9 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pl.dev4lazy.ums.adapters.outbound.persistence.UserRepositoryAdapter;
+import pl.dev4lazy.ums.application.service.UserActivationService;
+import pl.dev4lazy.ums.application.service.UserCreationService;
+import pl.dev4lazy.ums.application.service.UserDeactivationService;
 import pl.dev4lazy.ums.domain.service.UserNotFoundException;
 import pl.dev4lazy.ums.domain.model.user.UserStatus;
 import pl.dev4lazy.ums.domain.model.user.User;
@@ -38,28 +41,28 @@ public class UserDeactivationServiceTest extends AbstractTestNGSpringContextTest
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testInactivate_NullId_ThrowsIllegalArgumentException() {
-        userDeactivationService.inactivate(null);
+    public void testExecute_NullId_ThrowsIllegalArgumentException() {
+        userDeactivationService.execute(null);
     }
 
     @Test(expectedExceptions = UserNotFoundException.class)
-    public void testInactivate_NonExistingUser_ThrowsUserNotFoundException() {
+    public void testExecute_NonExistingUser_ThrowsUserNotFoundException() {
         Long missingId = 12345L;
-        userDeactivationService.inactivate(missingId);
+        userDeactivationService.execute(missingId);
     }
 
     @Test
-    public void testInactivate_ExistingActiveUser_StatusBecomesInactive() {
-        Long userId = userCreationService.create("Tomek", "Kowalski", "tomek.k@example.com");
+    public void testExecute_ExistingActiveUser_StatusBecomesInactive() {
+        Long userId = userCreationService.execute("Tomek", "Kowalski", "tomek.k@example.com");
 
-        userActivationService.activate(userId);
+        userActivationService.execute(userId);
 
         Optional<User> before = userRepositoryAdapter.findByUserId(new UserId(userId));
         assertTrue(before.isPresent());
         assertEquals(before.get().getStatus(), UserStatus.ACTIVE,
                 "Przed dezaktywacją status powinien być ACTIVE");
 
-        userDeactivationService.inactivate(userId);
+        userDeactivationService.execute(userId);
 
         Optional<User> after = userRepositoryAdapter.findByUserId(new UserId(userId));
         assertTrue(after.isPresent());
@@ -68,15 +71,15 @@ public class UserDeactivationServiceTest extends AbstractTestNGSpringContextTest
     }
 
     @Test
-    public void testInactivate_ExistingInactiveUser_SaveStillCalledButStatusRemainsInactive() {
-        Long userId = userCreationService.create("Ola", "Nowak", "ola.n@example.com");
+    public void testExecute_ExistingInactiveUser_SaveStillCalledButStatusRemainsInactive() {
+        Long userId = userCreationService.execute("Ola", "Nowak", "ola.n@example.com");
 
         Optional<User> initial = userRepositoryAdapter.findByUserId(new UserId(userId));
         assertTrue(initial.isPresent());
         assertEquals(initial.get().getStatus(), UserStatus.INACTIVE,
                 "Początkowy status powinien być INACTIVE");
 
-        userDeactivationService.inactivate(userId);
+        userDeactivationService.execute(userId);
 
         Optional<User> after = userRepositoryAdapter.findByUserId(new UserId(userId));
         assertTrue(after.isPresent());

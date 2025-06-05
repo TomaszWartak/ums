@@ -8,6 +8,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pl.dev4lazy.ums.adapters.outbound.persistence.UserRepositoryAdapter;
 import pl.dev4lazy.ums.adapters.outbound.dto.UserResponseDto;
+import pl.dev4lazy.ums.application.service.UsersListingService;
+import pl.dev4lazy.ums.application.service.UserCreationService;
 import pl.dev4lazy.ums.domain.model.user.UserStatus;
 
 import java.util.List;
@@ -16,13 +18,13 @@ import static org.testng.Assert.*;
 
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-public class ListUsersServiceTest extends AbstractTestNGSpringContextTests {
+public class UsersListingServiceTest extends AbstractTestNGSpringContextTests {
 
     @Autowired
     private UserCreationService userCreationService;
 
     @Autowired
-    private ListUsersService listUsersService;
+    private UsersListingService usersListingService;
 
     @Autowired
     private UserRepositoryAdapter userRepositoryAdapter;
@@ -34,17 +36,17 @@ public class ListUsersServiceTest extends AbstractTestNGSpringContextTests {
 
     @Test
     public void testListAll_EmptyDatabase_ReturnsEmptyList() {
-        List<UserResponseDto> result = listUsersService.listAll();
+        List<UserResponseDto> result = usersListingService.execute();
         assertNotNull(result);
         assertTrue(result.isEmpty(), "Oczekiwano pustej listy użytkowników");
     }
 
     @Test
-    public void testListAll_WithExistingUsers_ReturnsMappedDtos() {
-        userCreationService.create("Jan", "Kowalski", "jan.kowalski@example.com");
-        userCreationService.create("Anna", "Nowak", "anna.nowak@example.com");
+    public void testExecute_WithExistingUsers_ReturnsMappedDtos() {
+        userCreationService.execute("Jan", "Kowalski", "jan.kowalski@example.com");
+        userCreationService.execute("Anna", "Nowak", "anna.nowak@example.com");
 
-        List<UserResponseDto> result = listUsersService.listAll();
+        List<UserResponseDto> result = usersListingService.execute();
 
         assertNotNull(result);
         assertEquals(result.size(), 2, "Powinny być dwa elementy w liście");
