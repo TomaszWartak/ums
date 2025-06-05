@@ -19,7 +19,7 @@ public class UsersListingService {
         this.userDtoMapper = new UserDtoMapper();
     }
 
-    public List<UserResponseDto> listAll() {
+    public List<UserResponseDto> execute() {
         return userRepository.findAll().stream()
                 .map( userDtoMapper::userToDto )
                 .collect( Collectors.toList() );

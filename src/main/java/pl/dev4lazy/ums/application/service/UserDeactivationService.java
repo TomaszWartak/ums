@@ -2,6 +2,7 @@ package pl.dev4lazy.ums.application.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.dev4lazy.ums.application.usecase.DeactivateUserUseCase;
 import pl.dev4lazy.ums.domain.service.UserNotFoundException;
 import pl.dev4lazy.ums.domain.model.user.User;
 import pl.dev4lazy.ums.domain.model.user.UserId;
@@ -9,7 +10,8 @@ import pl.dev4lazy.ums.domain.repository.UserRepository;
 import pl.dev4lazy.ums.utils.Messages;
 
 @Service
-public class UserDeactivationService {
+public class UserDeactivationService implements DeactivateUserUseCase
+{
 
     private final UserRepository userRepository;
 
@@ -24,7 +26,7 @@ public class UserDeactivationService {
      * @throws UserNotFoundException gdy nie ma użytkownika o tym ID w bazie
      */
     @Transactional
-    public void inactivate(Long idValue) {
+    public void execute(Long idValue) {
         if (idValue == null) {
             throw new IllegalArgumentException( Messages.ID_NULL );
         }

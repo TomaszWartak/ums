@@ -66,7 +66,7 @@ public class UserController {
 
     @GetMapping("/api/users")
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-        List<UserResponseDto> users = usersListingService.listAll();
+        List<UserResponseDto> users = usersListingService.execute();
         return ResponseEntity.ok( users );
     }
 
@@ -78,7 +78,7 @@ public class UserController {
 
     @PutMapping("/api/users/{id}/deactivate")
     public ResponseEntity<Void> deactivateUser(@PathVariable Long id) {
-        userDeactivationService.inactivate(id);
+        userDeactivationService.execute(id);
         return ResponseEntity.ok().build();
     }
 }

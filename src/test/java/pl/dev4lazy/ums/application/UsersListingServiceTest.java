@@ -36,17 +36,17 @@ public class UsersListingServiceTest extends AbstractTestNGSpringContextTests {
 
     @Test
     public void testListAll_EmptyDatabase_ReturnsEmptyList() {
-        List<UserResponseDto> result = usersListingService.listAll();
+        List<UserResponseDto> result = usersListingService.execute();
         assertNotNull(result);
         assertTrue(result.isEmpty(), "Oczekiwano pustej listy użytkowników");
     }
 
     @Test
-    public void testListAll_WithExistingUsers_ReturnsMappedDtos() {
+    public void testExecute_WithExistingUsers_ReturnsMappedDtos() {
         userCreationService.execute("Jan", "Kowalski", "jan.kowalski@example.com");
         userCreationService.execute("Anna", "Nowak", "anna.nowak@example.com");
 
-        List<UserResponseDto> result = usersListingService.listAll();
+        List<UserResponseDto> result = usersListingService.execute();
 
         assertNotNull(result);
         assertEquals(result.size(), 2, "Powinny być dwa elementy w liście");
