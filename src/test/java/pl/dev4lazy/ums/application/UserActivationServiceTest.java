@@ -9,6 +9,8 @@ import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
 
 import pl.dev4lazy.ums.adapters.outbound.persistence.UserRepositoryAdapter;
+import pl.dev4lazy.ums.application.service.UserActivationService;
+import pl.dev4lazy.ums.application.service.UserCreationService;
 import pl.dev4lazy.ums.domain.model.user.UserStatus;
 import pl.dev4lazy.ums.domain.service.UserNotFoundException;
 import pl.dev4lazy.ums.domain.model.user.User;

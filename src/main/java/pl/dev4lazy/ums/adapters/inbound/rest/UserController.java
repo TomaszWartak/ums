@@ -6,10 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.dev4lazy.ums.adapters.inbound.dto.CreateUserRequestDto;
 import pl.dev4lazy.ums.adapters.outbound.dto.UserResponseDto;
-import pl.dev4lazy.ums.application.ListUsersService;
-import pl.dev4lazy.ums.application.UserActivationService;
-import pl.dev4lazy.ums.application.UserCreationService;
-import pl.dev4lazy.ums.application.UserDeactivationService;
+import pl.dev4lazy.ums.application.service.UsersListingService;
+import pl.dev4lazy.ums.application.service.UserActivationService;
+import pl.dev4lazy.ums.application.service.UserCreationService;
+import pl.dev4lazy.ums.application.service.UserDeactivationService;
 import pl.dev4lazy.ums.utils.Messages;
 
 import java.util.List;
@@ -21,15 +21,15 @@ public class UserController {
     private final UserCreationService userCreationService;
     private final UserActivationService userActivationService;
     private final UserDeactivationService userDeactivationService;
-    private final ListUsersService listUsersService;
+    private final UsersListingService usersListingService;
 
     public UserController(
             UserCreationService userCreationService,
-            ListUsersService listUsersService,
+            UsersListingService usersListingService,
             UserActivationService userActivationService,
             UserDeactivationService userDeactivationService) {
         this.userCreationService = userCreationService;
-        this.listUsersService = listUsersService;
+        this.usersListingService = usersListingService;
         this.userActivationService = userActivationService;
         this.userDeactivationService = userDeactivationService;
     }
@@ -49,7 +49,7 @@ public class UserController {
 
     @GetMapping("/api/users")
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-        List<UserResponseDto> users = listUsersService.listAll();
+        List<UserResponseDto> users = usersListingService.listAll();
         return ResponseEntity.ok( users );
     }
 
