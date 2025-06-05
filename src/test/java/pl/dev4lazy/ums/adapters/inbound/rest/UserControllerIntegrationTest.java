@@ -228,6 +228,52 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
                 .andExpect(status().isUnsupportedMediaType());
     }
 
+    // ************ testy dotyczące pobierania danych użytkownika
+    @Test
+    public void testGetUser_ExistingUser_ReturnsUser() throws Exception {
+        // given
+        CreateUserRequestDto createDto = new CreateUserRequestDto(
+                "Jan", "Testowy", "jan.testowy@example.com"
+        );
+
+        String createResponseJson = mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createDto))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JsonNode createResponse = objectMapper.readTree(createResponseJson);
+        Long userId = createResponse.get("id").asLong();
+
+        // when & then
+        mockMvc.perform(get("/api/users/{id}", userId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(userId))
+                .andExpect(jsonPath("$.firstName").value("Jan"))
+                .andExpect(jsonPath("$.lastName").value("Testowy"))
+                .andExpect(jsonPath("$.email").value("jan.testowy@example.com"))
+                .andExpect(jsonPath("$.status").value(UserStatus.INACTIVE.name()));
+    }
+
+    @Test
+    public void testGetUser_NonExistingUser_ReturnsNotFound() throws Exception {
+        // given
+        Long nonExistingId = 9999L;
+
+        // when & then
+        mockMvc.perform(get("/api/users/{id}", nonExistingId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error")
+                        .value(String.format(Messages.USER_NOT_FOUND, nonExistingId)));
+    }
+
     @Test
     public void testGetAllUsers_EmptyDatabase_ReturnsEmptyList() throws Exception {
         mockMvc.perform(get("/api/users")
@@ -237,6 +283,7 @@ public class UserControllerIntegrationTest extends AbstractTestNGSpringContextTe
                 .andExpect(jsonPath("$.length()").value(0));
     }
 
+    // ************ testy dotyczące pobierania listy użytkowników
     @Test
     public void testGetAllUsers_WithExistingUsers_ReturnsListOfUsers() throws Exception {
         CreateUserRequestDto dto1 = new CreateUserRequestDto(

@@ -10,6 +10,8 @@ import pl.dev4lazy.ums.application.service.UsersListingService;
 import pl.dev4lazy.ums.application.service.UserActivationService;
 import pl.dev4lazy.ums.application.service.UserCreationService;
 import pl.dev4lazy.ums.application.service.UserDeactivationService;
+import pl.dev4lazy.ums.application.usecase.GetUserUseCase;
+import pl.dev4lazy.ums.domain.service.UserNotFoundException;
 import pl.dev4lazy.ums.utils.Messages;
 
 import java.util.List;
@@ -22,16 +24,19 @@ public class UserController {
     private final UserActivationService userActivationService;
     private final UserDeactivationService userDeactivationService;
     private final UsersListingService usersListingService;
+    private final GetUserUseCase getUserUseCase;
 
     public UserController(
             UserCreationService userCreationService,
             UsersListingService usersListingService,
             UserActivationService userActivationService,
-            UserDeactivationService userDeactivationService) {
+            UserDeactivationService userDeactivationService,
+            GetUserUseCase getUserUseCase ) {
         this.userCreationService = userCreationService;
         this.usersListingService = usersListingService;
         this.userActivationService = userActivationService;
         this.userDeactivationService = userDeactivationService;
+        this.getUserUseCase = getUserUseCase;
     }
 
     @GetMapping("/")
@@ -45,6 +50,18 @@ public class UserController {
         return ResponseEntity
                 .status( HttpStatus.CREATED)
                 .body( Map.of("id", newId) );
+    }
+
+    @GetMapping("/api/users/{id}")
+    public ResponseEntity<?> getUser(@PathVariable Long id) {
+        try {
+            UserResponseDto user = getUserUseCase.execute(id);
+            return ResponseEntity.ok(user);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
     @GetMapping("/api/users")
